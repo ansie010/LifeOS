@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Life OS - Dagpagina</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #f1f5f9;
+            --muted: #94a3b8;
+            --green: #10b981;
+            --green-dark: #064e3b;
+            --border: #334155;
+            --amber-bg: #451a03;
+            --amber-border: #78350f;
+            --amber-text: #fde68a;
+            --red: #ef4444;
+            --blue: #3b82f6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            padding: 16px;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            color: var(--green);
+            font-weight: 800;
+        }
+
+        .date-text {
+            color: var(--muted);
+            font-size: 0.85rem;
+        }
+
+        .nav {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+            scrollbar-width: none;
+        }
+
+        .nav::-webkit-scrollbar { display: none; }
+
+        .nav button {
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--muted);
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .nav button.active {
+            background: var(--green);
+            color: #ffffff;
+            border-color: var(--green);
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 14px;
+            padding: 16px;
+            border: 1px solid var(--border);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .card-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .progress-bar-bg {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            height: 10px;
+            width: 100%;
+            overflow: hidden;
+            margin-top: 6px;
+        }
+
+        .progress-bar-fill {
+            background: var(--green);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .card-intention {
+            background: var(--amber-bg);
+            border-color: var(--amber-border);
+        }
+
+        .intention-label {
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: var(--amber-text);
+            letter-spacing: 0.5px;
+        }
+
+        .intention-quote {
+            color: var(--amber-text);
+            font-style: italic;
+            font-size: 0.95rem;
+            margin-top: 6px;
+        }
+
+        .btn-edit-intention {
+            background: transparent;
+            border: none;
+            color: var(--amber-text);
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .agenda-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .agenda-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 8px;
+            border-radius: 8px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            font-size: 0.85rem;
+        }
+
+        .agenda-time {
+            font-weight: 700;
+            width: 95px;
+            shrink: 0;
+            color: var(--green);
+        }
+
+        .agenda-desc { flex: 1; }
+
+        .tag-priv { border-left: 3px solid var(--muted); }
+        .tag-work { border-left: 3px solid var(--green); background: rgba(16, 185, 129, 0.05); }
+        .tag-night { border-left: 3px solid var(--amber-text); background: rgba(245, 158, 11, 0.05); }
+
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            gap: 8px;
+        }
+
+        .task-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            cursor: pointer;
+        }
+
+        .task-checkbox {
+            width: 22px;
+            height: 22px;
+            accent-color: var(--green);
+            cursor: pointer;
+        }
+
+        .task-label {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .task-done .task-label {
+            text-decoration: line-through;
+            color: var(--muted);
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .btn-action {
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--muted);
+            padding: 6px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-action:active { background: var(--border); }
+        .btn-delete { color: var(--red); border-color: rgba(239, 68, 68, 0.3); }
+        .btn-defer { color: var(--blue); border-color: rgba(59, 130, 246, 0.3); }
+
+        .add-box {
+            margin-top: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        .btn-add {
+            width: 100%;
+            padding: 12px;
+            background: var(--green);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .btn-add:disabled {
+            background: var(--border);
+            color: var(--muted);
+            cursor: not-allowed;
+        }
+
+        .badge {
+            background: var(--border);
+            color: var(--text);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .filter-warning {
+            display: none;
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid var(--red);
+            color: #fca5a5;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            margin-top: 8px;
+        }
+
+        .filter-warning.active { display: block; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <header>
+            <h1>Life OS</h1>
+            <div class="date-text">Donderdag 20 aug 2026</div>
+        </header>
+
+        <nav class="nav">
+            <button class="active">☀️ Dag</button>
+            <button onclick="navAlert('Week')">📅 Week</button>
+            <button onclick="navAlert('Maand')">🗓️ Maand</button>
+            <button onclick="navAlert('Jaar')">🎯 Jaar</button>
+            <button onclick="navAlert('Kompas')">🧭 Kompas</button>
+        </nav>
+
+        <section class="card card-intention">
+            <div class="card-header">
+                <span class="intention-label">✨ DAGINTENTIE & HERSTELKOERS</span>
+                <button class="btn-edit-intention" onclick="editIntention()">Bewerk</button>
+            </div>
+            <div class="intention-quote" id="intentionQuote">"Rust bewaren, focus houden op hoofdlijnen en niet haasten."</div>
+        </section>
+
+        <section class="card">
+            <div class="card-header">
+                <span class="card-title">📊 Dagelijkse Voortgang</span>
+                <span class="badge" id="overallStatus">Herstel Actief</span>
+            </div>
+            <div style="font-size: 0.8rem; color: var(--muted);">Focus-taken afgerond: <span id="progressText">0 van 0</span></div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="progressBar"></div>
+            </div>
+        </section>
+
+        <section class="card">
+            <div class="card-header">
+                <span class="card-title">🕒 Agenda (Harde Scheiding Werk / Privé)</span>
+            </div>
+            <div class="agenda-list">
+                <div class="agenda-item tag-priv">
+                    <span class="agenda-time">07:00 - 09:00</span>
+                    <span class="agenda-desc">Privé: Opstaan, hond, ontbijt & zelfzorg</span>
+                </div>
+                <div class="agenda-item tag-work">
+                    <span class="agenda-time">09:00 - 17:30</span>
+                    <span class="agenda-desc"><strong>Werk: Max 80% capaciteit</strong> (cliënten, WMO & admin)</span>
+                </div>
+                <div class="agenda-item tag-priv">
+                    <span class="agenda-time">17:30 - 20:45</span>
+                    <span class="agenda-desc">Privé: Koken, keuken opruimen, hond & douchen</span>
+                </div>
+                <div class="agenda-item tag-night">
+                    <span class="agenda-time">20:45 - 22:00</span>
+                    <span class="agenda-desc"><strong>Schermvrij:</strong> Muziek, lezen, breien</span>
+                </div>
+                <div class="agenda-item tag-night">
+                    <span class="agenda-time">22:00 - 22:30</span>
+                    <span class="agenda-desc"><strong>Bed-Anker:</strong> In bed met boek (22:30 licht uit)</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card">
+            <div class="card-header">
+                <span class="card-title">🎯 Top 3 Focus Taken</span>
+                <span class="badge" id="taskCounter">0/3</span>
+            </div>
+
+            <div class="task-list" id="taskList"></div>
+
+            <div class="filter-warning" id="filterWarning">
+                ⚠️ <strong>Prioriteiten-filter actief:</strong> Maximaal 3 focus-taken toegestaan om overbelasting te voorkomen. Schrap of verschuif eerst een bestaande taak.
+            </div>
+
+            <div class="add-box">
+                <input type="text" id="taskInput" class="input-field" placeholder="Nieuwe taak invoeren..." onkeypress="handleKeyPress(event)">
+                <button class="btn-add" id="btnAdd" onclick="addTask()">+ Voeg Focus Taak Toe (Max 3)</button>
+            </div>
+        </section>
+
+        <section class="card">
+            <div class="card-header">
+                <span class="card-title">🔄 Routines & Vaste Ankers</span>
+            </div>
+            <div class="task-list" id="routineList"></div>
+        </section>
+
+    </div>
+
+    <script>
+        let tasks = [
+            { id: 1, text: "Hoofdrapportage afronden", done: false }
+        ];
+
+        let routines = [
+            { id: 101, text: "Hond: 2x uitlaten, eten, gebit & vacht", done: false },
+            { id: 102, text: "Fysiek: Dagelijkse heupoefeningen", done: false },
+            { id: 103, text: "Keuken: Keuken opruimen + 2 kleine dagtaken", done: false }
+        ];
+
+        function renderTasks() {
+            const listEl = document.getElementById('taskList');
+            const counterEl = document.getElementById('taskCounter');
+            const inputEl = document.getElementById('taskInput');
+            const btnAddEl = document.getElementById('btnAdd');
+            const warningEl = document.getElementById('filterWarning');
+
+            listEl.innerHTML = '';
+
+            tasks.forEach((task) => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = `task-item ${task.done ? 'task-done' : ''}`;
+                itemDiv.innerHTML = `
+                    <div class="task-left" onclick="toggleTask(${task.id})">
+                        <input type="checkbox" class="task-checkbox" ${task.done ? 'checked' : ''} onclick="event.stopPropagation(); toggleTask(${task.id})">
+                        <span class="task-label">${escapeHtml(task.text)}</span>
+                    </div>
+                    <div class="task-actions">
+                        <button class="btn-action btn-defer" onclick="deferTask(${task.id})">➡️ Schuif</button>
+                        <button class="btn-action btn-delete" onclick="deleteTask(${task.id})">✕ Schrap</button>
+                    </div>
+                `;
+                listEl.appendChild(itemDiv);
+            });
+
+            const completed = tasks.filter(t => t.done).length;
+            counterEl.textContent = `${completed}/${tasks.length}`;
+
+            if (tasks.length >= 3) {
+                inputEl.disabled = true;
+                inputEl.placeholder = "Maximaal 3 focus-taken bereikt";
+                btnAddEl.disabled = true;
+                warningEl.classList.add('active');
+            } else {
+                inputEl.disabled = false;
+                inputEl.placeholder = "Nieuwe taak invoeren...";
+                btnAddEl.disabled = false;
+                warningEl.classList.remove('active');
+            }
+
+            updateProgress();
+        }
+
+        function renderRoutines() {
+            const listEl = document.getElementById('routineList');
+            listEl.innerHTML = '';
+
+            routines.forEach((routine) => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = `task-item ${routine.done ? 'task-done' : ''}`;
+                itemDiv.innerHTML = `
+                    <div class="task-left" onclick="toggleRoutine(${routine.id})">
+                        <input type="checkbox" class="task-checkbox" ${routine.done ? 'checked' : ''} onclick="event.stopPropagation(); toggleRoutine(${routine.id})">
+                        <span class="task-label">${escapeHtml(routine.text)}</span>
+                    </div>
+                `;
+                listEl.appendChild(itemDiv);
+            });
+        }
+
+        function updateProgress() {
+            const total = tasks.length;
+            const completed = tasks.filter(t => t.done).length;
+            const bar = document.getElementById('progressBar');
+            const text = document.getElementById('progressText');
+
+            text.textContent = `${completed} van ${total}`;
+            const percentage = total > 0 ? (completed / total) * 100 : 0;
+            bar.style.width = `${percentage}%`;
+        }
+
+        function addTask() {
+            const inputEl = document.getElementById('taskInput');
+            const text = inputEl.value.trim();
+
+            if (!text || tasks.length >= 3) return;
+
+            tasks.push({
+                id: Date.now(),
+                text: text,
+                done: false
+            });
+
+            inputEl.value = '';
+            renderTasks();
+        }
+
+        function toggleTask(id) {
+            tasks = tasks.map(t => t.id === id ? { ...t, done: !t.done } : t);
+            renderTasks();
+        }
+
+        function deleteTask(id) {
+            tasks = tasks.filter(t => t.id !== id);
+            renderTasks();
+        }
+
+        function deferTask(id) {
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                alert(`Taak "${task.text}" is doorgeschoven naar de weekplanning.`);
+                deleteTask(id);
+            }
+        }
+
+        function toggleRoutine(id) {
+            routines = routines.map(r => r.id === id ? { ...r, done: !r.done } : r);
+            renderRoutines();
+        }
+
+        function editIntention() {
+            const quoteEl = document.getElementById('intentionQuote');
+            const current = quoteEl.textContent.replace(/^"|"$/g, '');
+            const newIntention = prompt("Pas je dagintentie aan:", current);
+            if (newIntention && newIntention.trim() !== '') {
+                quoteEl.textContent = `"${newIntention.trim()}"`;
+            }
+        }
+
+        function handleKeyPress(e) {
+            if (e.key === 'Enter') addTask();
+        }
+
+        function navAlert(tabName) {
+            alert(`Navigatie naar ${tabName} werkt. Deze pagina bouwen we in de volgende stap.`);
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;")
+                      .replace(/</g, "&lt;")
+                      .replace(/>/g, "&gt;")
+                      .replace(/"/g, "&quot;");
+        }
+
+        renderTasks();
+        renderRoutines();
+    </script>
+</body>
+</html>
